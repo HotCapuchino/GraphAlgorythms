@@ -1,4 +1,5 @@
 import sys
+from graph_reader import GraphReader
 
 from graph import Graph
 
@@ -57,31 +58,7 @@ def print_result(previous_nodes, shortest_path, start_node, target_node):
     print("Whole path is:", " -> ".join(reversed(path)))
 
 
-nodes = ['1', '2', '3', '4', '5', '6', '7', '8', '9']
+graph = GraphReader.read_graph('./graph.csv')
 
-init_graph = {}
-for node in nodes:
-    init_graph[node] = {}
-
-init_graph['1']['2'] = 10
-init_graph['1']['3'] = 6
-init_graph['1']['4'] = 8
-init_graph['2']['4'] = 5
-init_graph['2']['7'] = 11
-init_graph['3']['5'] = 3
-init_graph['4']['3'] = 2
-init_graph['4']['5'] = 5
-init_graph['4']['6'] = 7
-init_graph['4']['7'] = 12
-init_graph['5']['6'] = 9
-init_graph['5']['9'] = 12
-init_graph['6']['8'] = 8
-init_graph['6']['9'] = 10
-init_graph['7']['6'] = 4
-init_graph['7']['8'] = 6
-init_graph['8']['9'] = 5
-
-graph = Graph(nodes, init_graph)
 previous_nodes, shortest_path = dijkstra(graph, '1')
-
 print_result(previous_nodes, shortest_path, '1', '9')

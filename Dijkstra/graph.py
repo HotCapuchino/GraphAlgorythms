@@ -1,7 +1,7 @@
-# Граф неориентированный
 class Graph(object):
-    def __init__(self, nodes, init_graph):
+    def __init__(self, nodes, init_graph, oriented=False):
         self.nodes = nodes
+        self.oriented = oriented
         self.graph = self.construct_graph(nodes, init_graph)
 
     def construct_graph(self, nodes, init_graph):
@@ -13,13 +13,12 @@ class Graph(object):
 
         for node, edges in graph.items():
             for adjacent_node, value in edges.items():
-                if graph[adjacent_node].get(node, False) == False:
+                if graph[adjacent_node].get(node, False) == False and not self.oriented:
                     graph[adjacent_node][node] = value
 
         return graph
 
     def get_node_neighbours(self, node):
-        "Возвращает соседей узла"
         connections = []
 
         for out_node in self.nodes:
@@ -29,3 +28,8 @@ class Graph(object):
 
     def get_edge_weight(self, start_node, end_node):
         return self.graph[start_node][end_node]
+
+    def print_graph(self):
+        for node, edges in self.graph.items():
+            for adjacent_node, value in edges.items():
+                print(f'{node} -> {adjacent_node}: {value}')
