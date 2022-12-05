@@ -4,8 +4,8 @@ from matplotlib import pyplot as plt
 import numpy as np
 from enum import Enum
 import math
-
 from graph import Graph
+from point import Point
 
 
 class ImageTypesEnum(Enum):
@@ -86,6 +86,7 @@ class ImageUtilsClass:
 
         print('Provide ImageTypesEnum value as func param!')
 
+    # TODO: нарисовать путь 
     def draw_the_way(self, way):
         pass
 
@@ -106,32 +107,25 @@ class ImageUtilsClass:
 
         for y in range(target_image.shape[0]):
             for x in range(target_image.shape[1]):
-                print(x, y)
+                node = Point(x, y)
+                node_string = str(node)
 
-                node = f'{x}:{y}'
-                nodes.append(node)
-                init_graph[node] = {}
+                nodes.append(node_string)
+                init_graph[node_string] = {}
 
                 for i in range(len(x_vector)):
                     target_x = x + x_vector[i]
                     target_y = y + y_vector[i]
 
-                    if target_x < 0 or target_y < 0 or target_x > target_image.shape[1] or target_y > target_image.shape[0]:
+                    if target_x < 0 or target_y < 0 or target_x >= target_image.shape[1] or target_y >= target_image.shape[0]:
                         continue
 
-                    adjacent_node = f'{target_x}:{target_y}'
-
-                    if adjacent_node not in nodes:
-                        nodes.append(adjacent_node)
+                    adjacent_node = Point(target_x, target_y)
 
                     distance = math.sqrt(
                         2) if target_x + target_y == 0 else 1
 
-                    if not init_graph.get(adjacent_node, False):
-                        init_graph[adjacent_node] = {}
-
-                    init_graph[node][adjacent_node] = distance
-                    init_graph[adjacent_node][node] = distance
+                    init_graph[node_string][str(adjacent_node)] = distance
 
         graph = Graph(nodes, init_graph, False)
         return graph

@@ -1,4 +1,3 @@
-# TODO: добавить вершинам метки волнового фронта
 class Graph:
     def __init__(self, nodes, init_graph, oriented=False):
         self.nodes = nodes
@@ -6,7 +5,6 @@ class Graph:
         self.graph = self.__construct_graph(nodes, init_graph)
         self.node_labels = self.__init_node_labels()
 
-    # TODO: нужно не только вершины сопоставлять но и задавать метки волнового фронта
     def __construct_graph(self, nodes, init_graph):
         graph = {}
         for node in nodes:
@@ -43,6 +41,7 @@ class Graph:
         for out_node in self.nodes:
             if self.graph[node].get(out_node, False) != False:
                 connections.append(out_node)
+                
         return connections
 
     def get_edge_weight(self, start_node, end_node):
@@ -52,3 +51,6 @@ class Graph:
         for node, edges in self.graph.items():
             for adjacent_node, value in edges.items():
                 print(f'{node} -> {adjacent_node}: {value}')
+
+    def debug_print_wave_labels(self):
+        print(self.node_labels) 
