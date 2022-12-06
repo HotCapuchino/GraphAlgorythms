@@ -3,20 +3,21 @@ from skimage.measure import label, regionprops
 from matplotlib import pyplot as plt
 import numpy as np
 from enum import Enum
-import math
-from graph import Graph
+
 from point import Point
 
 
 class ImageTypesEnum(Enum):
     Default = 1,
     Binarized = 2,
+    WithPath = 3
 
 
 class ImageUtilsClass:
     def __init__(self) -> None:
         self.__image = None
         self.__binarized_image = None
+        self.__with_path = None
 
     def __rough_binarization(self, image):
         r_m, b_m, g_m = image[:, :, 0], image[:, :, 1], image[:, :, 2]
@@ -24,11 +25,14 @@ class ImageUtilsClass:
         black = 0
         white = 255
 
-        r_m = np.where(r_m > black, black, white)
-        b_m = np.where(b_m > black, black, white)
-        g_m = np.where(g_m > black, black, white)
+        r_m = np.where(r_m > black, white, black)
+        b_m = np.where(b_m > black, white, black)
+        g_m = np.where(g_m > black, white, black)
 
-        return np.dstack(tup=(r_m, b_m, g_m))
+        blacked = np.int64(
+            np.all(np.dstack(tup=(r_m, b_m, g_m))[:, :, :-1] == 0, axis=2))
+
+        return blacked
 
     def __clean_image(self, thresholded):
         labeled = label(thresholded, 255, connectivity=2)
@@ -83,49 +87,30 @@ class ImageUtilsClass:
                 plt.imshow(self.__binarized_image)
                 plt.show()
             return
+        elif im_type == ImageTypesEnum.WithPath:
+            if self.__with_path is None:
+                print('Path has not been painted yet!')
+            else:
+                plt.imshow(self.__with_path)
+                plt.show()
+            return
 
         print('Provide ImageTypesEnum value as func param!')
 
-    # TODO: нарисовать путь 
-    def draw_the_way(self, way):
-        pass
-
-    def get_graph(self, image=None) -> Graph:
-        target_image = image if image else self.__image
-
-        if target_image is None:
-            print('You have not provided image or image has not been loadaed yet!')
+    def draw_the_path(self, path):
+        if self.__image is None:
+            print('Image has not been loaded yet!')
             return
 
-        target_image = np.array(target_image)
+        red = [170, 20, 90]
+        image_copied = np.copy(self.__image)
 
-        nodes = []
-        init_graph = {}
+        for point in path:
+            if isinstance(point, Point):
+                x, y = point.x, point.y
+            else:
+                x, y = str(point).split(":")[0], str(point).split(":")[1]
 
-        x_vector = [-1, 0, 1, 1, 1, 0, -1, -1]
-        y_vector = [-1, -1, -1, 0, 1, 1, 1, 0]
+            image_copied[y, x] = red
 
-        for y in range(target_image.shape[0]):
-            for x in range(target_image.shape[1]):
-                node = Point(x, y)
-                node_string = str(node)
-
-                nodes.append(node_string)
-                init_graph[node_string] = {}
-
-                for i in range(len(x_vector)):
-                    target_x = x + x_vector[i]
-                    target_y = y + y_vector[i]
-
-                    if target_x < 0 or target_y < 0 or target_x >= target_image.shape[1] or target_y >= target_image.shape[0]:
-                        continue
-
-                    adjacent_node = Point(target_x, target_y)
-
-                    distance = math.sqrt(
-                        2) if target_x + target_y == 0 else 1
-
-                    init_graph[node_string][str(adjacent_node)] = distance
-
-        graph = Graph(nodes, init_graph, False)
-        return graph
+        self.__with_path = image_copied
